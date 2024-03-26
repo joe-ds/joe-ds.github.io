@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Zeno's Password Reset Instructions</title>
+        <style>
+            ul li {
+                list-style: none;
+            }
+
+            .dropdown {
+                cursor: n-resize;
+            }
+
+            strong {
+                text-decoration: underline;
+            }
+
+            h1 {
+                padding: 20px;
+            }
+            
+            a:visited {
+                color: blue;
+            }
+        </style>
+        <script>
+            var count = 2;
+
+            function expand(s) {
+                s.innerHTML = "△";
+                s.onclick = "";
+                var x = s.parentElement;
+                var y = document.createElement("ul")
+                y.innerHTML = `<li><strong>Step 2.${count - 1}</strong> Proceed to <strong>Step 2.${count}</strong> <span class="dropdown" onclick="expand(this)">▽</span></li>`;
+                x.appendChild(y);
+                count++;
+                console.log("Done.")
+               
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Please follow these instructions to reset your password.</h1>
+        <ul id="instructions">
+            <li><strong>Step 1.</strong> Click the link to set your password. <a href='#'>Set New Password</a></li>
+            <li><strong>Step 2.</strong> Proceed to <strong>Step 2.1</strong> <span class="dropdown" onclick="expand(this)">▽</span></li>
+            <li><strong>Step 3.</strong> Click the link to set your passcode. <a href="#">Set New Passcode</a></li>
+        </ul>
+    </body>
+</html>
