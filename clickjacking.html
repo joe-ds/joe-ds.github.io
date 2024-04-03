@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>Clickjacking Test Frame</title>
+        <script>
+            function loadFrame() {
+                url = document.getElementById("url").value;
+                document.getElementById("frame").src = url;
+            }
+        </script>
+        <style>
+            body {
+                margin: 2em;
+            }
+            p {
+                font-size: 1.5em;
+            }
+            #frame {
+                height: 40rem;
+                width: 80rem;
+                resize: both;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Test a Site for Clickjacking</h1>
+        <form>
+            <label for="url">URL:</label><br>
+            <input type="text" id="url" name="url" value="http://example.com"><br>
+            <input type="button" value="Attempt to load in iFrame" onclick="loadFrame()">
+        </form>
+        <p>If the web application loads in this iFrame it is vulnerable to ClickJacking:</p>
+        <iframe id="frame" src="http://example.com"></iframe>
+        <script>window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches&&(document.body.style.color="#ddd",document.body.style.background="#011"),window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",d=>{let e=d.matches?"dark":"light";"dark"==e?(document.body.style.color="#ddd",document.body.style.background="#011"):(document.body.style.color="#000",document.body.style.background="#fff")});</script>
+    </body>
+</html>
