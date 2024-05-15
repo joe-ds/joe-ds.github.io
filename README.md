@@ -1,4 +1,4 @@
-Pages
+Site Pages
 =====
 
 *   [Ook! to bf (And Vice Versa) Translator](https://joe-ds.github.io/ooktobf.html) \[[Repo](https://github.com/joe-ds/ooktobf)\]
