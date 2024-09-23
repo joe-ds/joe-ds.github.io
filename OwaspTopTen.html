@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        html {
+            height: 100%;
+            background-color: rgb(179, 88, 139);
+        }
+
+        body {
+            min-height: 100%;
+            margin: 2em;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            background-color: rgb(179, 88, 139);
+            border-radius: 5%;
+        }
+
+        h1, .container {
+            padding: 2em;
+        }
+
+        ol {
+            margin: 2em;
+            list-style-type: decimal-leading-zero;
+            counter-reset: items;
+        }
+
+        ol li {
+            padding: 1em;
+            border: 0.5rem solid whitesmoke;
+            background-color: darkgoldenrod;
+            counter-increment: items;
+            display: block;
+        }
+
+        ol li::before {
+            content: "A0" counter(items)":";
+        }
+
+        li:nth-child(n+10):before {
+            content: "A" counter(items)":";
+        }
+
+        .dragover {
+            border: 0.5rem solid blueviolet;
+            background-color: chocolate
+        }
+
+        .dragging {
+            background-color: rgb(255, 166, 0);
+            border: 0.5rem solid crimson
+        }
+    </style>
+    <script>
+        // https://stackoverflow.com/questions/76599527/items-order-after-drag-and-drop-swap
+        var draggedItem = null;
+
+        function dragStart(e) {
+            draggedItem = this;
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("item", this.innerHTML);
+            this.classList.add("dragging")
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            return false;
+        }
+
+        function dragEnter(e) {
+            this.classList.add("dragover");
+        }
+
+        function dragLeave(e) {
+            this.classList.remove("dragover");
+        }
+
+        function drop(e) {
+            e.stopPropagation();
+
+            if (draggedItem != this) {
+                draggedItem.classList.remove("dragging")
+                draggedItem.innerHTML = this.innerHTML;
+                draggedItem.setAttribute("data-item", this.innerHTML);
+
+                let replacedImage = e.dataTransfer.getData("item");
+                this.innerHTML = replacedImage;
+                this.setAttribute("data-item", replacedImage);
+            }
+            return false;
+        }
+
+        function dragEnd(e) {
+            items.forEach(function (item) {
+                item.classList.remove("dragover");
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", event => {
+            items = document.querySelectorAll(".entry");
+
+            items.forEach(function (item) {
+                item.addEventListener("dragstart", dragStart);
+                item.addEventListener("dragenter", dragEnter);
+                item.addEventListener("dragover", dragOver);
+                item.addEventListener("dragleave", dragLeave);
+                item.addEventListener("drop", drop);
+                item.addEventListener("dragend", dragEnd);
+            });
+
+        });
+    </script>
+</head>
+
+<body>
+    <h1>OWASP Top Ten Quiz: Rearrange These to Be in the Right Order!</h1>
+    <div id="container">
+        <ol>
+            <li draggable="true" class="entry">2021-Security Logging and Monitoring Failures</li>
+            <li draggable="true" class="entry">2021-Insecure Design</li>
+            <li draggable="true" class="entry">2021-Server-Side Request Forgery</li>
+            <li draggable="true" class="entry">2021-Cryptographic Failures</li>
+            <li draggable="true" class="entry">2021-Identification and Authentication Failures</li>
+            <li draggable="true" class="entry">2021-Security Misconfiguration</li>
+            <li draggable="true" class="entry">2021-Software and Data Integrity Failures</li>
+            <li draggable="true" class="entry">2021-Vulnerable and Outdated Components</li>
+            <li draggable="true" class="entry">2021-Broken Access Control</li>
+            <li draggable="true" class="entry">2021-Injection</li>
+        </ol>
+    </div>
+    <script>
+        var ul = document.querySelector('ol');
+        for (var i = ul.children.length; i >= 0; i--) {
+            ul.appendChild(ul.children[Math.random() * i | 0]);
+        }
+    </script>
+</body>
+</html>
