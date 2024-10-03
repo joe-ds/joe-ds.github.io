@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>How To Delete Old Files</title>
+    <style>
+        @media all and (min-width: 1024px) {
+            html {
+                margin-right: 50%;
+            }
+        }
+
+        body {
+            margin: 3em;
+            padding: 1rem;
+        }
+
+        pre {
+            padding: 1em;
+        }
+
+        kbd {
+            padding: 0.3em;
+        }
+
+        #nav li a:visited, #nav li a {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>How to Delete Old Files</h1>
+    <ul id="nav">
+        <li><a href=#the-two-ways>The Two Ways</a></li>
+        <ul>
+            <li><a href="#bash">Bash</a></li>
+            <ul>
+                <li><a href="#chaining-commands">Chaining Commands</a></li>
+                <li><a href="#find"><kbd>find</kbd></a></li>
+            </ul>
+            <li><a href="#powershell">PowerShell</a></li>
+            <ul>
+                <li><a href="#module">Getting Setup With Your First Module</a></li>
+            </ul>
+        </ul>
+    </ul>
+    <h2 id="the-two-ways">The Two Ways</h2>
+    <p>So, likely as not, you want to do this on either Linux or Windows. But
+    in case you want to do it on both (and it's fun to!) we'll look at
+    both.</p>
+
+    <h2 id="bash">Bash</h2>
+    <p>Writing a bash script (or any shell script) is as easy as writing the
+    commands you want to run line by line as if you are running them line
+    by line! There's some extra stuff you <em>can</em> optionally do
+    to get in some extra flexibility too!</p>
+    <p>There are two ways to do this: let's look at the easy way by chaining
+    commands.</p>
+
+    <h3 id="chaining-commands">Chaining Commands</h3>
+    <p>The easiest way to do things is to run different commands line-by-line.
+    If you want to send the output of one command to another, you use the
+    pipe <kbd>|</kbd>.</p>
+    <pre>
+    <code>cd /home/eric/wordlist/
+    cat list_of_usernames.txt | grep 'jones'</code></pre>
+
+    <p>Now for the code above, we are trying to go to a folder, and get all
+    the usernames with 'jones' as part of the username. But there are some
+    issues here. For one, if we know the username file is always in that
+    folder, we can just get it out of there straightaway.</p>
+
+    <pre>
+    <code>cat /home/eric/wordlist/list_of_usernames.txt | grep 'jones'</code></pre>
+
+    <p>
+    Now, this here is what is nicknamed 'cat abuse'. We don't really need to
+    <kbd>cat</kbd> out the file.</p>
+    <pre>
+    <samp>user@mycomputer $ grep
+    Usage: grep [OPTION]... PATTERNS [FILE]...
+    Try 'grep --help' for more information.</samp></pre>
+
+    <p>So we see we can actually pass the file straight to <kbd>grep</kbd>.</p>
+
+    <pre>
+    <code>grep 'jones' /home/eric/wordlist/list_of_usernames.txt</code></pre>
+
+    <p>But this is kind of hard to edit. You'd have to go into the line to
+    change what you are looking for every time. And if you are referencing
+    it multiple times, it is really annoying. For example, what if we want to
+    print out what we are searching for every time like so?</p>
+
+    <pre>
+    <code>cat 'Searching for jones in /home/eric/wordlist/list_of_usernames.txt'
+    grep 'jones' /home/eric/wordlist/list_of_usernames.txt</code></pre>
+    
+    <p>Try and edit that script to load a different list and search for a different
+    name. (It doesn't have to exist!)</p>
+
+    <textarea rows="2" cols="79">cat 'Searching for jones in /home/eric/wordlist/list_of_usernames.txt'
+grep 'jones' /home/eric/wordlist/list_of_usernames.txt</textarea>
+
+    <p>Really annoying, right? Good news is that we have a solution: variables!
+    You can assign variables very easily: <kbd>variable_name=value</kbd>.
+    And you can use it with <kbd>$variable_name</kbd>.</p>
+    <p>Just note one thing: you can only do that with stuff in double quotes,
+    not single quotes. A good rule of thumb when writing bash scripts is
+    to use double-quotes if you really want to include something like a
+    variable, and single-quotes otherwise. Also, don't put spaces on either
+    side of the equal sign!</p>
+
+    <p>Let's rewrite this to use variables:</p>
+
+    <pre>
+    <code>searching_for='jones'
+    file='/home/eric/wordlist/list_of_usernames.txt'
+    cat "Searching for $jones in $searching_for"
+    grep $searching_for $file</code></pre>
+
+    <p>Much better! But it's still not perfect. Do you really want to edit the
+    script file every single time? That's so slow. You'd be better off
+    just typing the command every time.</p>
+
+    <p>A bash function is written like this:</p>
+    <pre>
+    <code>function_name () {
+        echo "I was called with $1"
+    }</code></pre>
+
+    <pre>
+    <samp>user@mycomputer $ function_name "cheep-cheep"
+    "I was called with cheep-cheep"</samp></pre>
+    
+    <p>You put in all the code you want to run inside the curly braces. And
+    you can access anything passed to your function with <kbd>$1</kbd>,
+    <kbd>$2</kbd>, <kbd>$3</kbd>, etc. There's also <kbd>$#</kbd>, which
+    is how many arguments (that's what those are called) were passed to
+    the function.</p>
+
+    <p>So let's put this together. We always want to give our function a
+    pattern, but we may not always want to give it a file: we could have
+    a default one, but if we are given one, we can use the one we are
+    given.</p>
+
+    <pre>
+    <code>function pattern_search () {
+        file='/home/eric/wordlist/list_of_usernames.txt'
+        if [ "$#" -eq 2 ]
+            then
+                file=$2
+        fi
+
+        echo "Searching for $1 in $file"
+        grep "$1" "$file"
+    }</code></pre>
+
+    <p>So, what's going on here? We first check if we've got two arguments.
+    If we do, then we replace <kbd>file</kbd> with the second argument.
+    In the end, we run the command.</p>
+
+    <p>Two things: what is that <kbd>if</kbd> construct? Even if you are used
+    to them in other languages, the syntax can be a bit weirder in bash. I'd
+    recommend reading
+    <a href="https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html">this</a>
+    and
+    <a href="https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_02.html">this</a>
+    for an explanation.</p>
+
+    <p>The other thing to note is that <em>now</em> when running
+    our <kbd>grep</kbd> command we are surrounding the arguments with quotes. Read
+    more about that <a href="https://www.shellcheck.net/wiki/SC2086">here</a>.</p>
+
+    <p>Let's put it all together. We can run this with <kbd>bash file.bash</kbd>,
+    but if we add a line to the top of our file, we can run it with just `./file.bash`
+    and Linux will know what to do.</p>
+    
+    <pre>
+    <code>#!/bin/bash
+    function pattern_search () {
+        file='/home/eric/wordlist/list_of_usernames.txt'
+        if [ "$#" -eq 2 ]
+            then
+                file=$2
+        fi
+
+        echo "Searching for $1 in $file"
+        grep "$1" "$file"
+    }</code></pre>
+
+    <p>Note that if you want this function to be available all the time, you can
+        just put the function into your <kbd>.bashrc</kbd> file.</p>
+
+    <p>Note that if you want to check your code, a useful site is
+        <a href="https://www.shellcheck.net/">ShellCheck</a>.</p>
+
+    <p>However, while you can chain together commands and maybe find something
+        useful, there is another easier way, if you know the right command.</p>
+
+    <h3 id="find"><kbd>find</kbd></h3>
+    <p>The <kbd>find</kbd> command is a useful command to find files with. You
+    have to give it a starting place, and some criteria.</p>
+
+    <pre>
+    <samp>user@mycomputer $ find /home/kurt/ -iname 'username'</samp></pre>
+
+    <p>All the flags and arguments to <kbd>find</kbd> are optional. By default it starts
+    searching from the present directory. Note that you can also give it a
+    <kbd>maxdepth</kbd> argument to determine how deep into folders it goes.
+    Use <kbd>find --help</kbd> to read up on all its many options.</p>
+
+    <p>What makes <kbd>find</kbd> very useful for our purposes is that it has
+    two arguments that are very handy. One is <kbd>-mtime</kbd>. You can
+    give this argument a number with a + or - in front of it. So
+    <kbd>-mtime +30</kbd> will search for files over 30 days old. I'm sure
+    you can see why this is very handy.</p>
+
+    <p>The other, and be careful with this one, is <kbd>-exec</kbd>. This
+    will run a shell command for every file found. <strong>Do not use
+    <kbd>rm</kbd> when playing with this! Use <kbd>ls</kbd> instead to see
+    what files would be deleted by your command.</strong> Even when you use
+    <kbd>rm</kbd> you can pass in the <kbd>-i</kbd> flag to have confirmation
+    before each file is deleted.</p>
+
+    <p>To use this argument, simply write the command you want to run after it,
+    with <kbd>{}</kbd> going where you want the filename to go, and end the
+    command with <kbd>\;</kbd> to both end the command and make sure it's not
+    ending the <kbd>find</kbd> command. For example,</p>
+
+    <pre>
+    <samp>user@mycomputer $ find -mtime -30 -type f -exec wc -l {} \;</samp></pre>
+
+    <p>This will look for all files (that's the <kbd>-type f</kbd> is doing) that
+    are less than 30 days old and give us the number of lines in them using
+    <kbd>wc</kbd>.</p>
+
+    <p>So combine this with your knowledge of shell scripting and writing functions
+    above, and you have all you need to write the script you want.</p>
+
+    <h2 id="powershell">PowerShell</h2>
+    <p>Alright, what about Windows? PowerShell is my go-to way on Windows. It works
+    in many of the same ways as bash. You can pipe the output of one command to the
+    next with the <kbd>|</kbd> (pipe) operator.</p>
+
+    <p>We'll get to how to save and run PowerShell scripts in a little bit. One
+    thing we have to note is there is no exact match for the <kbd>find</kbd>
+    command. But on the other hand the syntax is so much clearer (in my
+    opinion!)</p>
+
+    <p>So let's look at the pieces:</p>
+    <ul>
+        <li><kbd>Get-ChildItem</kbd>: This is equivalent to Linux's
+        <kbd>ls</kbd>. You can pass it the <kbd>-File</kbd> argument to make
+        sure that only files are listed.</li>
+        <li><kbd>Where-Object</kbd>: This lets us filter things. You can look into
+        it (and I recommend it if you get into PowerShell scripting [which I also
+        really recommend]). But all we need is
+        <kbd>Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-15)}</kbd>.<br/>
+        Briefly, <kbd>$_</kbd> is a bit like <kbd>{}</kbd> in the
+        <kbd>find -exec</kbd> command. It refers to each item. We then get the 
+        <kbd>LastWriteTime</kbd> and compare it to today minus 15 days.</li>
+        <li><kbd>Remove-Item</kbd>: Our <kbd>rm</kbd>. Be just as careful. If you
+        omit this at the end, you can just see the output. You can also, and this
+        is really useful, use the <kbd>-WhatIf</kbd> flag to see what would happen
+        without actually deleting anything.</li>
+    </ul>
+
+    <p>Pipe these commands together, and you have everything you need.</p>
+
+    <p>Using this, in a good and proper way, is a bit more involved. What I'd
+    recommend is turning your script into a module. It's not hard.</p>
+
+    <h3 id="module">Getting Setup With Your First Module</h3>
+    <p>Let's first make sure that PowerShell is setup to run our scripts. Run
+    the following to change the execution policy.</p>
+
+    <pre><code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></pre>
+
+    <p>Read up on
+    <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.4">execution policies</a>,
+    but the gist is that we are setting it so that remote scripts have to be
+    signed, but we can run any of our local scripts without signing them.</p>
+
+    <p>The next thing to do is to check the PowerShell folder (for the newer
+    versions of PowerShell). If you don't have one in your Documents folder,
+    make it. Then make sure there is a Microsoft.PowerShell_profile.ps1 file
+    in it. Also make sure there is a powershell.config.json file too, with the
+    value <kbd>{"Microsoft.PowerShell:ExecutionPolicy":"RemoteSigned"}</kbd> in
+    it.</p>
+
+    <p>You can paste the following lines into PowerShell to check it's all there:</p>
+
+    <pre>
+    <code>Test-Path "$env:USERPROFILE\Documents\PowerShell"
+    Test-Path "$env:USERPROFILE\Documents\PowerShell\powershell.config.json"
+    Test-Path "$env:USERPROFILE\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
+    (Get-Content "$env:USERPROFILE\Documents\PowerShell\powershell.config.json") -eq '{"Microsoft.PowerShell:ExecutionPolicy":"RemoteSigned"}'</code></pre>
+
+    <p>Now you're ready to make your first module. In the Modules directory in the
+    PowerShell directory, make a folder. Name it whatever you want your module
+    to be called. In that folder, make a .psm1 file called the same name as your
+    folder. That file is your module file.</p>
+
+    <pre>
+    <code>function My-Module {
+        put your code in here
+    }
+
+    Export-ModuleMember -Function My-Module</code></pre>
+
+    <p>Make sure that the name in the last line where the function is exported
+    is the same as your function name. At the same time, this is a terrible name
+    and PowerShell will complain at you. The right way to name a module is as
+    Verb-Noun. The noun can be whatever you want — File, Stuff, etc. The verb,
+    on the other hand, should come from a list of approved verbs. You can see it
+    by running <kbd>Get-Verb</kbd> in a PowerShell window.</p>
+
+    <p>When you are done, open up the Microsoft.PowerShell_profile.ps1 file and
+    add your module: just add the line <kbd>Import-Module MyModule</kbd>. Make
+    sure you use the folder name, and not your function name.</p>
+
+    <p>If you've done everything right, you can open a new PowerShell window and
+    punch in the name of your function and run it.</p>
+
+    <p><em>P. S. PowerShell functions are just as powerful as bash functions,
+    but learning to use them is left as an exercise for the reader. The
+    documentation is pretty straightforward, so you'll be fine!</em></p>
+</body>
+</html>
