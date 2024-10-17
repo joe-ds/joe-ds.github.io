@@ -3470,11 +3470,9 @@
 
       function whenIsX() {
         var counter = DAYS;
-        var current = DATE;
+        var current = new Date(DATE.getTime());
         while (counter > 0) {
-          var previous = current;
-          current = new Date();
-          current.setDate(previous.getDate() + 1);
+          current.setDate(current.getDate() + 1);
           if (current.getDay() != 0 && current.getDay() != 6) {
             counter--;
           }
