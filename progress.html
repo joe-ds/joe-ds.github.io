@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>How Much Progress Have You Made?</title>
+        <style>
+            body {
+                margin: 2em;
+            }
+
+            input, label {
+                padding: 0.5em;
+                margin: 0.3em;
+            }
+
+            #result {
+                margin: 3em;
+                border: 5px dotted darkgoldenrod;
+                padding: 1em;
+                width: fit-content
+            }
+
+            #result p, progress {
+                padding: 1.3em
+            }
+
+            #result p {
+                font-weight: bold;
+                width: fit-content;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>How Much Progress Have You Made?</h1>
+        <label for="total">Total testing days?</label>
+        <input type="number" min="1" name="total" id="total" value="5"><br />
+        
+        <label for="dayOn">And what day are you on?</label>
+        <input type="number" min="1" name="dayOn" id="dayOn" value="1"><br />
+
+        <label for="lost">Lost any time? You can enter a decimal for 0.5 of a day, for example. </label>
+        <input type="text" name="lost" id="lost" value="0.5"><br />
+
+        <div id="result">
+            <progress id="progress" max="100"></progress>
+            <p id="descr">Waiting...</p>
+        </div>
+
+        <script>
+            // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#examples
+            function getRandomArbitrary(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+
+            function progress() {
+                var total = parseInt(document.getElementById("total").value)
+                var dayOn = parseInt(document.getElementById("dayOn").value)
+                var lost = parseFloat(document.getElementById("lost").value)
+                var answer = Math.floor(((dayOn - lost) / total) * 100)
+                console.log(answer)
+
+                var descr = document.getElementById("descr")
+
+                document.getElementById("progress").value = answer
+                descr.textContent = `Current Progress: ${answer}%`
+            }
+
+            document.getElementById("total").addEventListener("change", progress)
+            document.getElementById("dayOn").addEventListener("change", progress)
+            document.getElementById("lost").addEventListener("change", progress)
+            progress()
+        </script>
+    </body>
+</html>
