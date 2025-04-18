@@ -1,0 +1,9 @@
+[{
+  "relation": ["forthelulz/well_done_you_found_one"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.secret.app",
+    "sha256_cert_fingerprints":
+    ["DE:AD:BE:EF:DE:AD:BE:EF:DE:AD:BE:EF:DE:AD:BE:EF:DE:AD:BE:EF:DE:AD:BE:EF:DE:AD:BE:EF:DE:AD:BE:EF"]
+  }
+}]
