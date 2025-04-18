@@ -1,0 +1,15 @@
+{
+  "applinks": {
+      "details": [
+           {
+             "appIDs": [ "com.secret.app" ],
+             "components": [
+               {
+                  "/": "/msg/*",
+                  "comment": "Well done! You found one of the two!"
+               }
+             ]
+           }
+       ]
+   }
+}
