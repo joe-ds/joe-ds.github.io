@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Burp Detector</title>
+    <style>
+        body {
+            margin: 0.5em;
+        }
+        #log {
+            width: 100em;
+        }
+    </style>
+    <script>
+        function log_to_page(text) {
+            let today = new Date();
+            // Yes, it'll be off a bit because I'm stamping it in here, but the resolution should be enough!
+            let timestamp = `${today.getFullYear()}-${String(today.getMonth()).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')} ${String(today.getHours()).padStart(2, '0')}:${String(today.getMinutes()).padStart(2, '0')}`
+            const txt = document.getElementById("log");
+            txt.textContent += `\n${timestamp} | ${text}`
+        }
+
+        async function detect_burp() {
+            const n = await fetch("https://joe-ds.github.io/okay.json", { mode: "no-cors", signal: AbortSignal.timeout(5000) });
+            if (n.status == 404) {
+                try {
+                    const c = await fetch("https://joe_ds.github.io/okay.json", { mode: "no-cors", signal: AbortSignal.timeout(2000) });
+                    log_to_page("Burp is not in use.")
+                    console.log("Burp is not in use.")
+                } catch(e) {
+                    log_to_page("Burp detected!")
+                    console.log("Burp detected!")
+                }
+            } else {
+                log_to_page("Normal behaviour not detected. Check Internet connection, etc.")
+                console.log("Normal behaviour not detected. Check Internet connection, etc.")
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Burp Detector</h1>
+    <textarea id="log" readonly rows="10" columns="140">
+    </textarea><br />
+    <button id="check" onclick="detect_burp()">Check</button>
+</body>
+</html>
